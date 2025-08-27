@@ -327,7 +327,7 @@ function OnboardingStep({ coach, step }) {
 
 - **API Issues:** Check the GitHub repository: https://github.com/kindredblair/prompt-api
 - **Deployment Issues:** Check Render dashboard logs
-- **Questions:** Contact the API maintainer
+- **Questions:** Contact Blair (blair@teamkindred.co)
 
 ## ✅ **Checklist for Implementation**
 
@@ -338,8 +338,6 @@ function OnboardingStep({ coach, step }) {
 - [ ] Prompts are cached appropriately
 - [ ] Fallback prompts are ready
 - [ ] Testing with cURL commands
-- [ ] Integration with AI/LLM system
+- [ ] Integration with OpenAI
 
 ---
-
-**That's it! You now have everything you need to integrate the Prompt API into your MedChefs onboarding flow.** 🎉
