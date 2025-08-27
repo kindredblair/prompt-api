@@ -1,135 +1,78 @@
-# Prompt API
+# MedChefs Prompt API
 
-A simple Flask-based API for serving system prompts for different personas. This API reads prompts from a JSON file and serves them via REST endpoints.
+A simple Flask API that provides system prompts for MedChefs onboarding flow. Each prompt is tailored to specific onboarding steps and coach personalities (Ellie and Nick).
 
-## Features
+## 🚀 Quick Start
 
-- Serve system prompts for different personas
-- API key authentication (optional)
-- Hot-reload prompts from JSON file
-- Simple REST API endpoints
+**API URL:** `https://prompt-api-a5ak.onrender.com`  
+**API Key:** `71cb1328699a9ca9aa0c3fec1985ff04`
 
-## Setup
-
-### 1. Create Virtual Environment
-
+### Get a Prompt
 ```bash
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+curl -X GET "https://prompt-api-a5ak.onrender.com/prompts/ellie/age" \
+  -H "X-API-Key: 71cb1328699a9ca9aa0c3fec1985ff04"
 ```
 
-### 2. Install Dependencies
+### JavaScript Example
+```javascript
+const response = await fetch('https://prompt-api-a5ak.onrender.com/prompts/ellie/age', {
+  headers: {
+    'X-API-Key': '71cb1328699a9ca9aa0c3fec1985ff04'
+  }
+});
+
+const data = await response.json();
+const prompt = data.ellie.age; // Use as system message
+```
+
+## 📋 Available Endpoints
+
+- `GET /prompts/{coach}/{step}` - Get specific prompt
+- `GET /prompts/{coach}` - Get all prompts for a coach
+- `GET /prompts` - Get all prompts
+- `GET /steps` - List all available steps
+
+## 👥 Coaches
+
+- **Ellie:** Compassionate, judgment-free guidance
+- **Nick:** Empathetic support with humor
+
+## 📝 Steps
+
+- `name_contact_avatar` - Account creation
+- `age` - Age input
+- `sex` - Sex selection
+- `height_weight` - Height/weight input
+- `select_coach` - Coach selection
+- `fruit_veg` - Fruit/vegetable questions
+- `sweetened_beverages` - Sweetened drink questions
+- `fish` - Fish consumption
+- `fiber` - Fiber intake
+- `salt` - Salt consumption
+- `whole_grains` - Whole grain questions
+- `processed_meat` - Processed meat questions
+- `reveal_score` - About to show health score
+- `understanding_score` - Explaining the score
+- `dietary_preferences` - Setting dietary preferences
+
+## 📖 Documentation
+
+See [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) for complete integration instructions.
+
+## 🔧 Local Development
 
 ```bash
+# Install dependencies
 pip install -r requirements.txt
-```
 
-### 3. Configure Environment Variables (Optional)
+# Set environment variables
+export PROMPT_API_KEY=your-api-key  # optional
+export PORT=8000
 
-```bash
-export PROMPTS_FILE=prompts.json        # optional, defaults to prompts.json
-export PROMPT_API_KEY=super-secret-key  # optional; omit to allow open access
-export PORT=5000                        # optional, defaults to 5000
-```
-
-### 4. Run the API
-
-```bash
+# Run the API
 python app.py
 ```
 
-The API will be available at `http://localhost:8000` (or the port specified in the PORT environment variable)
+## 📄 License
 
-## API Endpoints
-
-### Get a specific persona prompt
-
-```
-GET /prompts/{persona}
-```
-
-**Headers (if API key is set):**
-```
-X-API-Key: your-api-key
-```
-
-**Example:**
-```bash
-curl http://localhost:8000/prompts/ellie -H "X-API-Key: super-secret-key"
-```
-
-**Response:**
-```json
-{
-  "ellie": "You are Ellie, the user's personal Accountability Coach in the MedChefs app..."
-}
-```
-
-### List all prompts
-
-```
-GET /prompts
-```
-
-**Headers (if API key is set):**
-```
-X-API-Key: your-api-key
-```
-
-**Example:**
-```bash
-curl http://localhost:8000/prompts -H "X-API-Key: super-secret-key"
-```
-
-**Response:**
-```json
-{
-  "ellie": "You are Ellie, the user's personal Accountability Coach in the MedChefs app...",
-  "nick": "You are Nick, the user's personal Accountability Coach in the MedChefs app..."
-}
-```
-
-## Managing Prompts
-
-Edit the `prompts.json` file to add, modify, or remove personas. The API will pick up changes immediately on the next request.
-
-**Example prompts.json:**
-```json
-{
-  "ellie": "You are Ellie, the user's personal Accountability Coach in the MedChefs app. Speak casually and compassionately, using phrases like 'Umm…' or 'Honestly…'. Keep responses short and simple (one or two sentences) and focus on being supportive. Avoid technical jargon, and write numbers the way you would say them.",
-  "nick": "You are Nick, the user's personal Accountability Coach in the MedChefs app. Blend empathetic support with humor. Use casual language with filler phrases like 'Well…', 'I mean…', and 'Not to be dramatic but…'. Keep responses short and real, like a voice conversation. Lighten the mood when appropriate and avoid jargon; keep explanations high-level."
-}
-```
-
-## Deployment
-
-This Flask app can be deployed to various platforms:
-
-- **Render**: Set environment variables in the dashboard
-- **Railway**: Configure environment variables in the project settings
-- **Heroku**: Use `heroku config:set` to set environment variables
-- **AWS Elastic Beanstalk**: Configure environment variables in the EB console
-
-Make sure to set the same environment variables on your hosting platform:
-- `PROMPTS_FILE` (optional)
-- `PROMPT_API_KEY` (optional)
-- `PORT` (optional)
-
-## Testing
-
-Run the included test script to verify all endpoints work correctly:
-
-```bash
-python test_api.py
-```
-
-This will test:
-- Getting specific persona prompts
-- Listing all prompts
-- Unauthorized access handling
-- Non-existent persona handling
-
-## Error Responses
-
-- `401 Unauthorized`: Invalid or missing API key
-- `404 Not Found`: Persona not found in prompts file
+MIT
