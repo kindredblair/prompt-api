@@ -25,6 +25,24 @@ const data = await response.json();
 const prompt = data.ellie.age; // Use as system message
 ```
 
+### TypeScript Example
+```typescript
+interface PromptResponse {
+  [coach: string]: {
+    [step: string]: string;
+  };
+}
+
+const response = await fetch('https://prompt-api-a5ak.onrender.com/prompts/ellie/age', {
+  headers: {
+    'X-API-Key': '71cb1328699a9ca9aa0c3fec1985ff04'
+  }
+});
+
+const data: PromptResponse = await response.json();
+const prompt: string = data.ellie.age; // Use as system message
+```
+
 ## 📋 Available Endpoints
 
 - `GET /prompts/{coach}/{step}` - Get specific prompt

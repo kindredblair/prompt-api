@@ -23,6 +23,25 @@ const data = await response.json();
 const prompt = data[coach][step]; // This is your system message
 ```
 
+```typescript
+interface PromptResponse {
+  [coach: string]: {
+    [step: string]: string;
+  };
+}
+
+// Replace {coach} with 'ellie' or 'nick'
+// Replace {step} with the step name (see table below)
+const response = await fetch(`https://prompt-api-a5ak.onrender.com/prompts/{coach}/{step}`, {
+  headers: {
+    'X-API-Key': '71cb1328699a9ca9aa0c3fec1985ff04'
+  }
+});
+
+const data: PromptResponse = await response.json();
+const prompt: string = data[coach][step]; // This is your system message
+```
+
 ### **Example: Get Ellie's prompt for the Age step**
 
 ```javascript
@@ -34,6 +53,24 @@ const response = await fetch('https://prompt-api-a5ak.onrender.com/prompts/ellie
 
 const data = await response.json();
 const ellieAgePrompt = data.ellie.age;
+// Use ellieAgePrompt as your system message for the AI
+```
+
+```typescript
+interface PromptResponse {
+  [coach: string]: {
+    [step: string]: string;
+  };
+}
+
+const response = await fetch('https://prompt-api-a5ak.onrender.com/prompts/ellie/age', {
+  headers: {
+    'X-API-Key': '71cb1328699a9ca9aa0c3fec1985ff04'
+  }
+});
+
+const data: PromptResponse = await response.json();
+const ellieAgePrompt: string = data.ellie.age;
 // Use ellieAgePrompt as your system message for the AI
 ```
 
@@ -73,7 +110,7 @@ const ellieAgePrompt = data.ellie.age;
 
 ## 🔧 **Implementation Examples**
 
-### **React/Next.js Hook**
+### **React/Next.js Hook (JavaScript)**
 
 ```jsx
 import { useState, useEffect } from 'react';
@@ -131,7 +168,82 @@ function OnboardingStep({ coach, step }) {
 }
 ```
 
-### **JavaScript/TypeScript Function**
+### **React/Next.js Hook (TypeScript)**
+
+```tsx
+import { useState, useEffect } from 'react';
+
+interface PromptResponse {
+  [coach: string]: {
+    [step: string]: string;
+  };
+}
+
+interface UseCoachPromptReturn {
+  prompt: string;
+  loading: boolean;
+  error: string | null;
+}
+
+const API_KEY = '71cb1328699a9ca9aa0c3fec1985ff04';
+const BASE_URL = 'https://prompt-api-a5ak.onrender.com';
+
+function useCoachPrompt(coach: string, step: string): UseCoachPromptReturn {
+  const [prompt, setPrompt] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchPrompt() {
+      try {
+        const response = await fetch(`${BASE_URL}/prompts/${coach}/${step}`, {
+          headers: {
+            'X-API-Key': API_KEY
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data: PromptResponse = await response.json();
+        setPrompt(data[coach][step]);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPrompt();
+  }, [coach, step]);
+
+  return { prompt, loading, error };
+}
+
+// Usage in component
+interface OnboardingStepProps {
+  coach: string;
+  step: string;
+}
+
+function OnboardingStep({ coach, step }: OnboardingStepProps) {
+  const { prompt, loading, error } = useCoachPrompt(coach, step);
+
+  if (loading) return <div>Loading coach prompt...</div>;
+  if (error) return <div>Error loading prompt: {error}</div>;
+
+  return (
+    <div>
+      <h2>Coach: {coach}</h2>
+      <p>Step: {step}</p>
+      <p>System Message: {prompt}</p>
+    </div>
+  );
+}
+```
+
+### **JavaScript Function**
 
 ```javascript
 const API_KEY = '71cb1328699a9ca9aa0c3fec1985ff04';
@@ -160,6 +272,43 @@ async function getCoachPrompt(coach, step) {
 // Usage
 const ellieAgePrompt = await getCoachPrompt('ellie', 'age');
 const nickFruitPrompt = await getCoachPrompt('nick', 'fruit_veg');
+```
+
+### **TypeScript Function**
+
+```typescript
+interface PromptResponse {
+  [coach: string]: {
+    [step: string]: string;
+  };
+}
+
+const API_KEY = '71cb1328699a9ca9aa0c3fec1985ff04';
+const BASE_URL = 'https://prompt-api-a5ak.onrender.com';
+
+async function getCoachPrompt(coach: string, step: string): Promise<string> {
+  try {
+    const response = await fetch(`${BASE_URL}/prompts/${coach}/${step}`, {
+      headers: {
+        'X-API-Key': API_KEY
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data: PromptResponse = await response.json();
+    return data[coach][step];
+  } catch (error) {
+    console.error('Error fetching prompt:', error);
+    throw error;
+  }
+}
+
+// Usage
+const ellieAgePrompt: string = await getCoachPrompt('ellie', 'age');
+const nickFruitPrompt: string = await getCoachPrompt('nick', 'fruit_veg');
 ```
 
 ### **Python Function**
@@ -245,10 +394,35 @@ const coach = 'ellie'; // or 'nick' based on user's choice
 const prompt = await getCoachPrompt(coach, step);
 ```
 
+```typescript
+// Example: User is on the age input step
+const step: string = 'age';
+const coach: string = 'ellie'; // or 'nick' based on user's choice
+
+const prompt: string = await getCoachPrompt(coach, step);
+```
+
 ### **3. Use as System Message**
 Pass the returned prompt as the system message to your AI/LLM:
 
 ```javascript
+// Example with OpenAI
+const completion = await openai.chat.completions.create({
+  model: "gpt-4",
+  messages: [
+    {
+      role: "system",
+      content: prompt // The prompt from the API
+    },
+    {
+      role: "user",
+      content: userMessage
+    }
+  ]
+});
+```
+
+```typescript
 // Example with OpenAI
 const completion = await openai.chat.completions.create({
   model: "gpt-4",
@@ -288,6 +462,18 @@ try {
 }
 ```
 
+```typescript
+try {
+  const prompt: string = await getCoachPrompt(coach, step);
+  // Use prompt
+} catch (error) {
+  // Fallback to default prompt or show error message
+  console.error('Failed to load coach prompt:', error);
+  // Use a default prompt
+  const defaultPrompt: string = "You are a helpful assistant...";
+}
+```
+
 ### **2. Cache Prompts Locally**
 ```javascript
 // Cache prompts to avoid repeated API calls
@@ -306,9 +492,42 @@ async function getCachedPrompt(coach, step) {
 }
 ```
 
+```typescript
+// Cache prompts to avoid repeated API calls
+const promptCache = new Map<string, string>();
+
+async function getCachedPrompt(coach: string, step: string): Promise<string> {
+  const key = `${coach}-${step}`;
+  
+  if (promptCache.has(key)) {
+    return promptCache.get(key)!;
+  }
+  
+  const prompt = await getCoachPrompt(coach, step);
+  promptCache.set(key, prompt);
+  return prompt;
+}
+```
+
 ### **3. Loading States**
 ```jsx
 function OnboardingStep({ coach, step }) {
+  const { prompt, loading, error } = useCoachPrompt(coach, step);
+
+  if (loading) {
+    return <div>Loading coach prompt...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  return <div>{prompt}</div>;
+}
+```
+
+```tsx
+function OnboardingStep({ coach, step }: OnboardingStepProps) {
   const { prompt, loading, error } = useCoachPrompt(coach, step);
 
   if (loading) {
